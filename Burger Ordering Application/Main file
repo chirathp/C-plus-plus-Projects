@@ -1,0 +1,363 @@
+
+#include <iostream>
+#include <vector>
+#include <limits>
+using namespace std;
+
+// Constants for credits and burger prices
+const double INITIAL_CREDITS = 0.00;
+const double SMALL_BURGER_PRICE = 3.00;
+const double MEDIUM_BURGER_PRICE = 5.50;
+const double LARGE_BURGER_PRICE = 7.25;
+
+// Function Prototypes
+void displayMainMenu(double credits);
+void addCredits(double& credits);
+void orderyourBurger(double& credits);
+void addyourToppings(double& amount , double& credits);
+void addmoreToppings(double& amount, double&);
+void continueOrder(double& credits, double fullAmount);
+void displayRecentOrders(const vector<string>& orders);
+
+
+
+// Function to display the Main Menu
+void displayMainMenu(double credits) {
+
+    int yourSelection;
+
+    // Use a do-while loop to keep the menu visible until the user chooses to quit.
+    do {
+        // Display the main menu
+        cout << "---------------------------------------------------" << endl;
+        cout << "Welcome to UCLan BURGER!" << endl;
+        cout << "---------------------------------------------------" << endl;
+        cout << "MAIN MENU" << endl;
+        cout << "1. Add Credits (current credits = " << credits << ")" << endl;
+        cout << "2. Order Burger" << endl;
+        cout << "0. Exit" << endl;
+        cout << endl;
+
+        // Ask the user to input their selection
+        cout << "Please enter a number: " << flush;
+        while (!(cin >> yourSelection)) {
+            cout << endl;
+            cout << "Invalid input. Please enter a valid number: " << flush;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        cout << endl;
+
+        // To manage user selection, utilise a switch-case.
+        switch (yourSelection) {
+            case 1:
+                // Call the function to add credits
+                addCredits(credits);
+                break;
+
+            case 2:
+                // To begin the burger order, call the function.
+                orderyourBurger(credits);
+                break;
+
+            case 0:
+                // Exit the program
+                cout << "Thank you, goodbye!" << endl;
+                break;
+
+            default:
+                // Invalid input when else entered
+                cout << "Invalid input. Please try again." << endl;
+        }
+
+    } while (yourSelection != 0);
+}
+
+// Function to add credits to the user's account
+void addCredits(double& credits) {
+
+    double addyourCredits;
+
+    cout << "Enter the amount of credits to add: ";
+    while (!(cin >> addyourCredits)) {
+            cout << endl;
+            cout << "Invalid input. Please enter a valid number: " << flush;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    // Update the credits variable with the new amount
+    credits += addyourCredits;
+
+    cout << endl;
+    cout << "Your New Balance = " << credits << " credits" << endl;
+    cout << endl;
+}
+
+// Start the burger ordering procedure with this function.
+void orderyourBurger(double& credits) {
+
+    int yourOption;
+    double amount = 0.00;
+
+    // Display the options for burger size
+    cout << "ORDER BURGER – Select Size [Current Balance = " << credits << " credits]" << endl;
+    cout << endl;
+    cout << "Please choose from the following options" << endl;
+    cout << endl;
+
+    cout << " 1. Small   [" << SMALL_BURGER_PRICE << " credits] " << endl;
+    cout << " 2. Medium  [" << MEDIUM_BURGER_PRICE << " credits] " << endl;
+    cout << " 3. Large   [" << LARGE_BURGER_PRICE << " credits] " << endl;
+    cout << " 0. Return to Main Menu " << endl;
+
+    cout << "..................................................." << endl;
+    cout << "Please enter a number: " << flush;
+    while (!(cin >> yourOption)) {
+            cout << endl;
+            cout << "Invalid input. Please enter a valid number: " << flush;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+
+    // Handle the user's choice for burger size
+    if (yourOption == 0) {
+        return;
+    }
+
+    if (yourOption == 1) {
+        // Set the burger amount and display the selection
+        amount = SMALL_BURGER_PRICE;
+        cout << "You have selected a Small burger" << endl;
+        cout << "..................................................." << endl;
+    }
+    else if (yourOption == 2) {
+        amount = MEDIUM_BURGER_PRICE;
+        cout << "You have selected a Medium burger" << endl;
+        cout << "..................................................." << endl;
+    }
+    else if (yourOption == 3) {
+        amount = LARGE_BURGER_PRICE;
+        cout << "You have selected a Large burger" << endl;
+        cout << "..................................................." << endl;
+    }
+    else {
+        // Invalid input when else entered
+        cout << "Invalid option." << endl;
+        return;
+    }
+
+    // Continue by adding toppings for the selected burger size
+    addyourToppings(amount , credits);
+}
+
+// Function to add toppings to the burger
+void addyourToppings(double& amount, double& credits) {
+
+    int toppingChoice;
+    double toppingAmount;
+    string topping = ""; // Initialize an empty string for the topping name
+
+    // Display the options for toppings
+    cout << "ORDER BURGER– Select Topping [Current Balance = " << credits << " credits]" << endl;
+    cout << endl;
+    cout << "Please choose from the following options:" << endl;
+    cout << endl;
+
+    cout << " 1. Cheese        [0.80 credits]" << endl;
+    cout << " 2. Salad         [0.50 credits]" << endl;
+    cout << " 3. Bacon         [1.00 credits]" << endl;
+    cout << " 4. Ketchup       [0.30 credits]" << endl;
+    cout << " 5. Mayo          [0.30 credits]" << endl;
+    cout << " 6. Extra Burger  [1.50 credits]" << endl;
+    cout << " 0. Return to Main Menu" << endl;
+
+    cout << "................................................" << endl;
+    cout << "Please enter a number: " << flush;
+    while (!(cin >> toppingChoice)) {
+            cout << "Invalid input. Please enter a valid number: " << flush;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+
+    // Handle the user's choice for toppings
+    if (toppingChoice == 0) {
+        return;
+    }
+
+    // Determine the topping amount and name based on the user's selection.
+    if (toppingChoice == 1) {
+        toppingAmount = 0.80;
+        topping = "Cheese";
+        cout << "---------------------------------------------------" << endl;
+    }
+    else if (toppingChoice == 2) {
+        toppingAmount = 0.50;
+        topping = "Salad";
+        cout << "---------------------------------------------------" << endl;
+    }
+    else if (toppingChoice == 3) {
+        toppingAmount = 1.00;
+        topping = "Bacon";
+        cout << "---------------------------------------------------" << endl;
+    }
+    else if (toppingChoice == 4) {
+        toppingAmount = 0.30;
+        topping = "Ketchup";
+        cout << "---------------------------------------------------" << endl;
+    }
+    else if (toppingChoice == 5) {
+        toppingAmount = 0.30;
+        topping = "Mayo";
+        cout << "---------------------------------------------------" << endl;
+    }
+    else if (toppingChoice == 6) {
+        toppingAmount = 1.50;
+        topping = "Extra Burger";
+        cout << "---------------------------------------------------" << endl;
+    }
+    else {
+        // Invalid input when else entered
+        cout << "Invalid option." << endl;
+        return;
+    }
+
+    // Update the total amount with the topping amount
+    amount += toppingAmount;
+
+    // Inform the user about the added topping and the current price
+    cout << "You have added " << topping << " to your burger. Your current price is: " << amount << " credits." << endl;
+    cout << endl;
+    cout << "Would you like to add additional toppings?" << endl;
+
+    // Proceed to ask the user if they want to add more toppings
+    addmoreToppings(amount , credits);
+}
+
+// Ask the user if they want to add extra toppings.
+void addmoreToppings(double& amount, double& credits) {
+
+    char additionalToppings;
+
+    cout << endl;
+    cout << "Please input 'Y' for yes and 'N' for no : " << flush;
+    cin >> additionalToppings;
+    cout << "..................................................." << endl;
+
+    // Continue to add more toppings or order the burger based on the user's feedback.
+    if (additionalToppings == 'Y' || additionalToppings == 'y') {
+        addyourToppings(amount , credits); // goes back to select new toppings
+    }
+    else if (additionalToppings == 'N' || additionalToppings == 'n') {
+        continueOrder(credits, amount); // go ahead with the processing of the order
+    }
+    else {
+        // Handle invalid input
+        cout << "Invalid input. Please try again." << endl;
+        addmoreToppings(amount , credits);
+    }
+}
+
+// Function for processing the user's order and deducting credits if needed.
+void continueOrder(double& credits, double fullAmount) {
+
+    char ordernewBurger;
+
+    if (credits >= fullAmount) {
+
+        // Deduct the burger amount from the user's credits
+        credits -= fullAmount;
+
+        // Display the transaction details
+        cout << "Available Balance: " << credits << " credits" << endl;
+        cout << "Burger price: " << fullAmount << " credits" << endl;
+        cout << "---------------------------------------------------" << endl;
+        cout << "Your new Balance: " << credits << " credits" << endl;
+        cout << "---------------------------------------------------" << endl;
+        cout << "Your transaction has been accepted" << endl;
+        cout << endl;
+
+        // Ask the user if they want to order another burger
+        cout << "Would you like to order another burger?" << endl;
+        cout << "Please input 'Y' for yes and 'N' for no : " << flush;
+        cin >> ordernewBurger;
+
+        // Go back to order a new burger or exit the programme based on the user's input.
+        if (ordernewBurger == 'Y' || ordernewBurger == 'y') {
+            cout << endl;
+            orderyourBurger(credits); // goes back to order a new burger
+        }
+        else if (ordernewBurger == 'N' || ordernewBurger == 'n') {
+            cout << "Thank you, goodbye!" << endl;
+            return;
+        }
+        else {
+            // Handle invalid input
+            cout << endl;
+            cout << "Invalid input. Please try again." << endl;
+            cout << endl;
+            continueOrder(credits, fullAmount);
+        }
+    }
+    else {
+        char additionalCredits;
+
+        // Display the insufficient credits message and ask if the user wants to add more credits
+        cout << "Available Balance: " << credits << " credits" << endl;
+        cout << "Burger price: " << fullAmount << " credits" << endl;
+        cout << "---------------------------------------------------" << endl;
+        cout << "You have insufficient credits available. You require " << fullAmount << " credits" << endl;
+        cout << "Would you like to add more credits?" << endl;
+        cout << "Please enter 'Y' for yes and 'N' for no : " << flush;
+        cin >> additionalCredits;
+
+        // Function for processing the user's order and deducting credits if needed.
+        if (additionalCredits == 'Y' || additionalCredits == 'y') {
+            addCredits(credits); // goes back to add more credits
+            continueOrder(credits, fullAmount);
+        }
+        else if (additionalCredits == 'N' || additionalCredits == 'n') {
+            cout << "Thank you, goodbye!" << endl;
+            return;
+        }
+        else {
+            // Handle invalid input
+            cout << endl;
+            cout << "Invalid input. Please try again." << endl;
+            cout << endl;
+        }   
+    }
+}
+
+// Function to display recent orders
+void displayRecentOrders(const vector<string>& orders) {
+    if (orders.empty()) {
+        cout << "No recent orders." << endl;
+        return;
+    }
+
+    cout << "----------------------------------------" << endl;
+    cout << "Recent Orders:" << endl;
+    for (const string& order : orders) {
+        cout << order << endl;
+    }
+    cout << "----------------------------------------" << endl;
+}
+
+int main()
+{
+    // Vector to store recent orders
+    vector<string> recentOrders;
+
+    double credits = INITIAL_CREDITS;
+
+    // Display the main menu and allow the user to interact
+    displayMainMenu(credits);
+
+    // Display any recent orders
+    displayRecentOrders(recentOrders);
+
+    return 0;
+}
+
+
