@@ -1,0 +1,223 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <vector>
+#include <cctype>
+
+using namespace std;
+
+// Function to replace a substring with another string
+void replaceAll(string &str, const string &from, const string &to)
+{
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != string::npos)
+    {
+        // Checking whether the found instance is part of a word
+        if ((start_pos == 0 || !isalpha(str[start_pos - 1])) && // Check left boundary
+            (start_pos + from.length() == str.length() || !isalpha(str[start_pos + from.length()]))) // Check right boundary
+        {
+            str.replace(start_pos, from.length(), to);
+            // In case 'to' contains 'from', avoid infinite loop
+            start_pos += to.length(); 
+        }
+        else
+        {
+            // Move past the current instance of 'from'
+            start_pos += from.length(); 
+        }
+    }
+}
+
+// Function to read line by line from the file into a vector of strings
+vector<string> readBannedFile(const string &filename)
+{
+    // Read banned words into a vector
+    vector<string> words_Banned;
+    ifstream file_Banned(filename);
+    if (!file_Banned)
+    {
+        cout << "Unable to open banned word file." << endl;
+        return words_Banned;
+    }
+
+    string banned;
+    while (file_Banned >> banned)
+    {
+        words_Banned.push_back(banned);
+    }
+    file_Banned.close();
+    return words_Banned;
+}
+
+// Function to replace banned words to tweets filtered file
+void replaceTweets(const vector<string> &words_Banned, const string &inputfilename, const string &outputfilename)
+{
+    // Open and read the tweets file
+    ifstream file_tweets("tweets1.txt");
+    if (!file_tweets)
+    {
+        cout << "Unable to open tweets file." << endl;
+        return;
+    }
+
+    // Output to filtered file
+    ofstream output_file("tweets1Filtered.txt");
+    if (!output_file)
+    {
+        cout << "Unable to create output file." << endl;
+        return;
+    }
+
+    string tweet;
+
+    while (getline(file_tweets, tweet))
+    {
+        // Replace banned words with ***
+        for (const string &bannedWord : words_Banned)
+        {
+            replaceAll(tweet, bannedWord, "***");
+        }
+        output_file << tweet << endl;
+    }
+
+    cout << "Banned words replaced and filtered tweets saved to '" << outputfilename << "'" << endl;
+
+    file_tweets.close();
+    output_file.close();
+}
+
+int main()
+{
+
+    // Read banned words into a vector
+    vector<string> words_Banned = readBannedFile("banned.txt");
+
+    if (words_Banned.empty())
+    {
+        cout << "No banned words found." << endl;
+        return 1;
+    }
+
+    // Open and read the tweets file
+    ifstream tweetsFile("tweets1.txt");
+    if (!tweetsFile)
+    {
+        cout << "Unable to open tweets file." << endl;
+        return 1;
+    }
+
+    string tweet;
+    vector<int> wordCounts(words_Banned.size(), 0); // Initialize a vector to store word counts
+    while (getline(tweetsFile, tweet))
+    {
+        for (size_t i = 0; i < words_Banned.size(); ++i)
+        {
+            size_t pos = 0;
+            while ((pos = tweet.find(words_Banned[i], pos)) != string::npos)
+            {
+                wordCounts[i]++; // Increment count for the found banned word
+                pos += words_Banned[i].length();
+            }
+        }
+    }
+    tweetsFile.close();
+
+    // Display word counts for banned words
+    for (size_t i = 0; i < words_Banned.size(); ++i)
+    {
+        cout << "'" << words_Banned[i] << "' found " << wordCounts[i] << " times" << endl;
+    }
+
+    // Process every tweets file and replace banned words in those
+    vector<string> tweetFiles_input = {"tweets1.txt", "tweets2.txt", "tweets3.txt", "tweets4.txt"};
+
+    for (const string &fileInput : tweetFiles_input)
+    {
+
+        ifstream file_tweets(fileInput);
+
+        if (!file_tweets)
+        {
+            cout << "Unable to open the file" << fileInput << endl;
+            continue;
+        }
+
+        ofstream tweetFiles_output(fileInput + "Filtered.txt");
+
+        if (!tweetFiles_output)
+        {
+            cout << "Unable to create an output file for " << fileInput << " , sorry" << endl;
+            continue;
+        }
+
+        string tweet;
+
+        while (getline(file_tweets, tweet))
+        {
+            // Convert the tweet to lowercase for case-insensitive matching
+            // transform(tweet.begin(), tweet.end(), tweet.begin(), ::tolower);
+
+            // Replace banned words with ***
+            for (const string &bannedWord : words_Banned)
+            {
+                string bannedWordLower = bannedWord;
+                // transform(bannedWordLower.begin(), bannedWordLower.end(), bannedWordLower.begin(), ::tolower);
+                replaceAll(tweet, bannedWordLower, "***");
+            }
+
+            tweetFiles_output << tweet << endl;
+        }
+
+        cout << "Banned words replaced and filtered " << fileInput << " saved to '" << fileInput + "Filtered.txt"
+             << "'" << endl;
+
+        file_tweets.close();
+        tweetFiles_output.close();
+
+        // Process every tweets file and count banned words in each file
+        for (size_t fileIndex = 0; fileIndex < tweetFiles_input.size(); ++fileIndex)
+        {
+
+            ifstream file_tweets(tweetFiles_input[fileIndex]);
+
+            if (!file_tweets)
+            {
+                cout << "Unable to open the file " << tweetFiles_input[fileIndex] << endl;
+                continue;
+            }
+
+            string tweet;
+            vector<int> wordCounts(words_Banned.size(), 0); // Initialize a vector to store word counts
+
+            while (getline(file_tweets, tweet))
+            {
+                // Convert the tweet to lowercase for case-insensitive matching
+                // transform(tweet.begin(), tweet.end(), tweet.begin(), ::tolower);
+
+                // Count banned words
+                for (size_t i = 0; i < words_Banned.size(); ++i)
+                {
+                    size_t pos = 0;
+                    while ((pos = tweet.find(words_Banned[i], pos)) != string::npos)
+                    {
+                        wordCounts[i]++; // Increment count for the found banned word
+                        pos += words_Banned[i].length();
+                    }
+                }
+            }
+
+            cout << "Banned words found in " << tweetFiles_input[fileIndex] << ": " << endl;
+            for (size_t i = 0; i < words_Banned.size(); ++i)
+            {
+                if (wordCounts[i] > 0)
+                {
+                    cout << "'" << words_Banned[i] << "' found " << wordCounts[i] << " times" << endl;
+                }
+            }
+
+            file_tweets.close();
+        }
+    }
+
+    return 0;
+}
